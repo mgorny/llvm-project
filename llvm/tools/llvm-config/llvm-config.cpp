@@ -593,7 +593,11 @@ int main(int argc, char **argv) {
       } else if (Arg == "--obj-root") {
         OS << ActivePrefix << '\n';
       } else if (Arg == "--src-root") {
-        OS << LLVM_SRC_ROOT << '\n';
+        if (IsInDevelopmentTree) {
+          OS << LLVM_SRC_ROOT << '\n';
+        } else {
+          OS << "/dev/null\n";
+        }
       } else if (Arg == "--ignore-libllvm") {
         LinkDyLib = false;
         LinkMode = BuiltSharedLibs ? LinkModeShared : LinkModeAuto;
