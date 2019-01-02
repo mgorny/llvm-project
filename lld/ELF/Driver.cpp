@@ -365,6 +365,56 @@ static void checkZOptions(opt::InputArgList &Args) {
       error("unknown -z value: " + StringRef(Arg->getValue()));
 }
 
+void LinkerDriver::appendDefaultSearchPaths() {
+  if (Config->TargetTriple.isOSNetBSD()) {
+    // NetBSD driver relies on the linker knowing the default search paths.
+    // Please keep this in sync with clang/lib/Driver/ToolChains/NetBSD.cpp
+    // (NetBSD::NetBSD constructor)
+    switch (Config->TargetTriple.getArch()) {
+    case llvm::Triple::x86:
+      Config->SearchPaths.push_back("=/usr/lib/i386");
+      break;
+    case llvm::Triple::arm:
+    case llvm::Triple::armeb:
+    case llvm::Triple::thumb:
+    case llvm::Triple::thumbeb:
+      switch (Config->TargetTriple.getEnvironment()) {
+      case llvm::Triple::EABI:
+      case llvm::Triple::GNUEABI:
+        Config->SearchPaths.push_back("=/usr/lib/eabi");
+        break;
+      case llvm::Triple::EABIHF:
+      case llvm::Triple::GNUEABIHF:
+        Config->SearchPaths.push_back("=/usr/lib/eabihf");
+        break;
+      default:
+        Config->SearchPaths.push_back("=/usr/lib/oabi");
+        break;
+      }
+      break;
+#if 0 // TODO
+    case llvm::Triple::mips64:
+    case llvm::Triple::mips64el:
+      if (tools::mips::hasMipsAbiArg(Args, "o32"))
+        Config->SearchPaths.push_back("=/usr/lib/o32");
+      else if (tools::mips::hasMipsAbiArg(Args, "64"))
+        Config->SearchPaths.push_back("=/usr/lib/64");
+      break;
+#endif
+    case llvm::Triple::ppc:
+      Config->SearchPaths.push_back("=/usr/lib/powerpc");
+      break;
+    case llvm::Triple::sparc:
+      Config->SearchPaths.push_back("=/usr/lib/sparc");
+      break;
+    default:
+      break;
+    }
+
+    Config->SearchPaths.push_back("=/usr/lib");
+  }
+}
+
 void LinkerDriver::main(ArrayRef<const char *> ArgsArr) {
   ELFOptTable Parser;
   opt::InputArgList Args = Parser.parse(ArgsArr.slice(1));
@@ -396,6 +446,7 @@ void LinkerDriver::main(ArrayRef<const char *> ArgsArr) {
   setTargetTriple(ArgsArr[0], Args);
   readConfigs(Args);
   checkZOptions(Args);
+  appendDefaultSearchPaths();
 
   // Handle -v or -version.
   //

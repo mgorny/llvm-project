@@ -32,6 +32,7 @@ public:
 private:
   void setTargetTriple(StringRef argv0, llvm::opt::InputArgList &Args);
   void readConfigs(llvm::opt::InputArgList &Args);
+  void appendDefaultSearchPaths();
   void createFiles(llvm::opt::InputArgList &Args);
   void inferMachineType();
   template <class ELFT> void link(llvm::opt::InputArgList &Args);
