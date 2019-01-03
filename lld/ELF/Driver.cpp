@@ -861,7 +861,8 @@ void LinkerDriver::readConfigs(opt::InputArgList &Args) {
   Config->CallGraphProfileSort = Args.hasFlag(
       OPT_call_graph_profile_sort, OPT_no_call_graph_profile_sort, true);
   Config->EnableNewDtags =
-      Args.hasFlag(OPT_enable_new_dtags, OPT_disable_new_dtags, true);
+      Args.hasFlag(OPT_enable_new_dtags, OPT_disable_new_dtags,
+                   !Config->TargetTriple.isOSNetBSD());
   Config->Entry = Args.getLastArgValue(OPT_entry);
   Config->ExecuteOnly =
       Args.hasFlag(OPT_execute_only, OPT_no_execute_only, false);
