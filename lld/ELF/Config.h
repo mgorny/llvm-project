@@ -60,6 +60,9 @@ enum class Target2Policy { Abs, Rel, GotRel };
 // For tracking ARM Float Argument PCS
 enum class ARMVFPArgKind { Default, Base, VFP, ToolChain };
 
+// For -z *stack
+enum class GnuStackKind { None, Exec, NoExec };
+
 struct SymbolVersion {
   llvm::StringRef Name;
   bool IsExternCpp;
@@ -184,8 +187,8 @@ struct Configuration {
   bool WriteAddends;
   bool ZCombreloc;
   bool ZCopyreloc;
-  bool ZExecstack;
   bool ZGlobal;
+  GnuStackKind ZGnustack;
   bool ZHazardplt;
   bool ZInitfirst;
   bool ZInterpose;

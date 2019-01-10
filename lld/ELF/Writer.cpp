@@ -2003,14 +2003,16 @@ template <class ELFT> std::vector<PhdrEntry *> Writer<ELFT>::createPhdrs() {
   if (OutputSection *Cmd = findSection(".openbsd.randomdata"))
     AddHdr(PT_OPENBSD_RANDOMIZE, Cmd->getPhdrFlags())->add(Cmd);
 
-  // PT_GNU_STACK is a special section to tell the loader to make the
-  // pages for the stack non-executable. If you really want an executable
-  // stack, you can pass -z execstack, but that's not recommended for
-  // security reasons.
-  unsigned Perm = PF_R | PF_W;
-  if (Config->ZExecstack)
-    Perm |= PF_X;
-  AddHdr(PT_GNU_STACK, Perm)->p_memsz = Config->ZStackSize;
+  if (Config->ZGnustack != GnuStackKind::None) {
+    // PT_GNU_STACK is a special section to tell the loader to make the
+    // pages for the stack non-executable. If you really want an executable
+    // stack, you can pass -z execstack, but that's not recommended for
+    // security reasons.
+    unsigned Perm = PF_R | PF_W;
+    if (Config->ZGnustack == GnuStackKind::Exec)
+      Perm |= PF_X;
+    AddHdr(PT_GNU_STACK, Perm)->p_memsz = Config->ZStackSize;
+  }
 
   // PT_OPENBSD_WXNEEDED is a OpenBSD-specific header to mark the executable
   // is expected to perform W^X violations, such as calling mprotect(2) or
