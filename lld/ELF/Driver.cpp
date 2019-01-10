@@ -351,6 +351,7 @@ static bool isKnownZFlag(StringRef S) {
          S == "keep-text-section-prefix" || S == "lazy" || S == "muldefs" ||
          S == "nocombreloc" || S == "nocopyreloc" || S == "nodefaultlib" ||
          S == "nodelete" || S == "nodlopen" || S == "noexecstack" ||
+         S == "nognustack" ||
          S == "nokeep-text-section-prefix" || S == "norelro" || S == "notext" ||
          S == "now" || S == "origin" || S == "relro" || S == "retpolineplt" ||
          S == "rodynamic" || S == "text" || S == "wxneeded" ||
@@ -869,6 +870,7 @@ void LinkerDriver::readConfigs(opt::InputArgList &Args) {
   Config->ZCopyreloc = getZFlag(Args, "copyreloc", "nocopyreloc", true);
   Config->ZExecstack = getZFlag(Args, "execstack", "noexecstack", false);
   Config->ZGlobal = hasZOption(Args, "global");
+  Config->ZNognustack = hasZOption(Args, "nognustack");
   Config->ZHazardplt = hasZOption(Args, "hazardplt");
   Config->ZInitfirst = hasZOption(Args, "initfirst");
   Config->ZInterpose = hasZOption(Args, "interpose");

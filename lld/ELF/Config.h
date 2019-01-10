@@ -193,6 +193,7 @@ struct Configuration {
   bool ZNodefaultlib;
   bool ZNodelete;
   bool ZNodlopen;
+  bool ZNognustack;
   bool ZNow;
   bool ZOrigin;
   bool ZRelro;
