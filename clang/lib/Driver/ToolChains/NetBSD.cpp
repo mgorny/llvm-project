@@ -255,31 +255,6 @@ void netbsd::Linker::ConstructJob(Compilation &C, const JobAction &JA,
   bool NeedsXRayDeps = addXRayRuntime(ToolChain, Args, CmdArgs);
   AddLinkerInputs(getToolChain(), Inputs, Args, CmdArgs, JA);
 
-  unsigned Major, Minor, Micro;
-  ToolChain.getTriple().getOSVersion(Major, Minor, Micro);
-  bool useLibgcc = true;
-  if (Major >= 7 || Major == 0) {
-    switch (ToolChain.getArch()) {
-    case llvm::Triple::aarch64:
-    case llvm::Triple::aarch64_be:
-    case llvm::Triple::arm:
-    case llvm::Triple::armeb:
-    case llvm::Triple::thumb:
-    case llvm::Triple::thumbeb:
-    case llvm::Triple::ppc:
-    case llvm::Triple::ppc64:
-    case llvm::Triple::ppc64le:
-    case llvm::Triple::sparc:
-    case llvm::Triple::sparcv9:
-    case llvm::Triple::x86:
-    case llvm::Triple::x86_64:
-      useLibgcc = false;
-      break;
-    default:
-      break;
-    }
-  }
-
   if (!Args.hasArg(options::OPT_nostdlib, options::OPT_nodefaultlibs)) {
     addOpenMPRuntime(CmdArgs, getToolChain(), Args);
     if (D.CCCIsCXX()) {
@@ -287,28 +262,28 @@ void netbsd::Linker::ConstructJob(Compilation &C, const JobAction &JA,
         ToolChain.AddCXXStdlibLibArgs(Args, CmdArgs);
       CmdArgs.push_back("-lm");
     }
-    if (NeedsSanitizerDeps)
+    if (NeedsSanitizerDeps) {
       linkSanitizerRuntimeDeps(getToolChain(), CmdArgs);
+      CmdArgs.push_back("-lunwind");
+    }
     if (NeedsXRayDeps)
       linkXRayRuntimeDeps(ToolChain, CmdArgs);
     if (Args.hasArg(options::OPT_pthread))
       CmdArgs.push_back("-lpthread");
     CmdArgs.push_back("-lc");
 
-    if (useLibgcc) {
-      if (Args.hasArg(options::OPT_static)) {
-        // libgcc_eh depends on libc, so resolve as much as possible,
-        // pull in any new requirements from libc and then get the rest
-        // of libgcc.
-        CmdArgs.push_back("-lgcc_eh");
-        CmdArgs.push_back("-lc");
-        CmdArgs.push_back("-lgcc");
-      } else {
-        CmdArgs.push_back("-lgcc");
-        CmdArgs.push_back("--as-needed");
-        CmdArgs.push_back("-lgcc_s");
-        CmdArgs.push_back("--no-as-needed");
-      }
+    if (Args.hasArg(options::OPT_static)) {
+      // libgcc_eh depends on libc, so resolve as much as possible,
+      // pull in any new requirements from libc and then get the rest
+      // of libgcc.
+      CmdArgs.push_back("-lgcc_eh");
+      CmdArgs.push_back("-lc");
+      CmdArgs.push_back("-lgcc");
+    } else {
+      CmdArgs.push_back("-lgcc");
+      CmdArgs.push_back("--as-needed");
+      CmdArgs.push_back("-lgcc_s");
+      CmdArgs.push_back("--no-as-needed");
     }
   }
 
@@ -411,6 +386,15 @@ ToolChain::CXXStdlibType NetBSD::GetDefaultCXXStdlibType() const {
     }
   }
   return ToolChain::CST_Libstdcxx;
+}
+void NetBSD::AddCXXStdlibLibArgs(const llvm::opt::ArgList &Args,
+                                 llvm::opt::ArgStringList &CmdArgs) const {
+  ToolChain::AddCXXStdlibLibArgs(Args, CmdArgs);
+
+  if (GetDefaultCXXStdlibType() == ToolChain::CST_Libcxx) {
+    CmdArgs.push_back("-lc++abi");
+    CmdArgs.push_back("-lunwind");
+  }
 }
 
 void NetBSD::addLibCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,

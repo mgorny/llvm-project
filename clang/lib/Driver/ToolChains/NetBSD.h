@@ -58,6 +58,8 @@ public:
   bool IsObjCNonFragileABIDefault() const override { return true; }
 
   CXXStdlibType GetDefaultCXXStdlibType() const override;
+  void AddCXXStdlibLibArgs(const llvm::opt::ArgList &Args,
+                           llvm::opt::ArgStringList &CmdArgs) const override;
 
   void addLibCxxIncludePaths(
       const llvm::opt::ArgList &DriverArgs,
