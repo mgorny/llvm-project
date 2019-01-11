@@ -415,12 +415,14 @@ void test_getcwd() {
   ASSERT_LABEL(ret, i_label);
 }
 
+#if !defined(__NetBSD__)
 void test_get_current_dir_name() {
   char* ret = get_current_dir_name();
   assert(ret);
   assert(ret[0] == '/');
   ASSERT_READ_ZERO_LABEL(ret, strlen(ret) + 1);
 }
+#endif
 
 void test_gethostname() {
   char buf[1024];
@@ -592,6 +594,7 @@ void test_select() {
   ASSERT_READ_ZERO_LABEL(&fds, sizeof(fds));
 }
 
+#if !defined(__NetBSD__)
 void test_sched_getaffinity() {
   cpu_set_t mask;
   dfsan_set_label(j_label, &mask, 1);
@@ -599,6 +602,7 @@ void test_sched_getaffinity() {
   assert(ret == 0);
   ASSERT_READ_ZERO_LABEL(&mask, sizeof(mask));
 }
+#endif
 
 void test_sigemptyset() {
   sigset_t set;

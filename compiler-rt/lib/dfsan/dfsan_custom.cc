@@ -458,6 +458,7 @@ char *__dfsw_getcwd(char *buf, size_t size, dfsan_label buf_label,
   return ret;
 }
 
+#if !SANITIZER_NETBSD
 SANITIZER_INTERFACE_ATTRIBUTE
 char *__dfsw_get_current_dir_name(dfsan_label *ret_label) {
   char *ret = get_current_dir_name();
@@ -467,6 +468,7 @@ char *__dfsw_get_current_dir_name(dfsan_label *ret_label) {
   *ret_label = 0;
   return ret;
 }
+#endif
 
 SANITIZER_INTERFACE_ATTRIBUTE
 int __dfsw_gethostname(char *name, size_t len, dfsan_label name_label,
@@ -709,6 +711,7 @@ int __dfsw_select(int nfds, fd_set *readfds, fd_set *writefds,
   return ret;
 }
 
+#if !SANITIZER_NETBSD
 SANITIZER_INTERFACE_ATTRIBUTE
 int __dfsw_sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask,
                              dfsan_label pid_label,
@@ -721,6 +724,7 @@ int __dfsw_sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask,
   *ret_label = 0;
   return ret;
 }
+#endif
 
 SANITIZER_INTERFACE_ATTRIBUTE
 int __dfsw_sigemptyset(sigset_t *set, dfsan_label set_label,
