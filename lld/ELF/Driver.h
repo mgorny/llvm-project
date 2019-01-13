@@ -30,6 +30,7 @@ public:
   void addLibrary(StringRef Name);
 
 private:
+  void setTargetTriple(StringRef argv0, llvm::opt::InputArgList &Args);
   void readConfigs(llvm::opt::InputArgList &Args);
   void createFiles(llvm::opt::InputArgList &Args);
   void inferMachineType();
