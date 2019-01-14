@@ -957,7 +957,8 @@ void LinkerDriver::readConfigs(opt::InputArgList &Args) {
   Config->ZCopyreloc = getZFlag(Args, "copyreloc", "nocopyreloc", true);
   Config->ZExecstack = getZFlag(Args, "execstack", "noexecstack", false);
   Config->ZGlobal = hasZOption(Args, "global");
-  Config->ZNognustack = hasZOption(Args, "nognustack");
+  Config->ZNognustack = hasZOption(Args, "nognustack") ||
+    Config->TargetTriple.isOSNetBSD();
   Config->ZHazardplt = hasZOption(Args, "hazardplt");
   Config->ZInitfirst = hasZOption(Args, "initfirst");
   Config->ZInterpose = hasZOption(Args, "interpose");
