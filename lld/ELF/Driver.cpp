@@ -318,6 +318,9 @@ static void checkOptions() {
 
     if (Config->SingleRoRx && !Script->HasSectionsCommand)
       error("-execute-only and -no-rosegment cannot be used together");
+  } else if (Config->TargetTriple.isOSNetBSD()) {
+    // force-disable RO segment on NetBSD due to ld.elf_so limitations
+    Config->SingleRoRx = true;
   }
 }
 
