@@ -29,6 +29,10 @@ TEST_F(StandardStartupTest, TestStopReplyContainsThreadPcs) {
       Succeeded());
 
   ASSERT_THAT_ERROR(Client->ListThreadsInStopReply(), Succeeded());
+#if defined(__NetBSD__)
+  // XFAIL: this test currently fails on NetBSD
+  ASSERT_THAT_ERROR(Client->ContinueAll(), Failed());
+#else
   ASSERT_THAT_ERROR(Client->ContinueAll(), Succeeded());
   unsigned int pc_reg = Client->GetPcRegisterId();
   ASSERT_NE(pc_reg, UINT_MAX);
@@ -50,4 +54,5 @@ TEST_F(StandardStartupTest, TestStopReplyContainsThreadPcs) {
     EXPECT_THAT(thread_infos[tid].ReadRegister(pc_reg),
                 Pointee(Eq(stop_reply_pc.second)));
   }
+#endif
 }

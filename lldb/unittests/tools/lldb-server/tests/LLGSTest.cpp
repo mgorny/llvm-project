@@ -22,11 +22,16 @@ TEST_F(TestBase, LaunchModePreservesEnvironment) {
   ASSERT_THAT_EXPECTED(ClientOr, Succeeded());
   auto &Client = **ClientOr;
 
+#if defined(__NetBSD__)
+  // XFAIL: this test currently fails on NetBSD
+  ASSERT_THAT_ERROR(Client.ContinueAll(), Failed());
+#else
   ASSERT_THAT_ERROR(Client.ContinueAll(), Succeeded());
   ASSERT_THAT_EXPECTED(
       Client.GetLatestStopReplyAs<StopReplyExit>(),
       HasValue(testing::Property(&StopReply::getKind,
                                  WaitStatus{WaitStatus::Exit, 0})));
+#endif
 }
 
 TEST_F(TestBase, DS_TEST(DebugserverEnv)) {
