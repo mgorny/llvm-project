@@ -31,6 +31,8 @@ def use_lldb_substitutions(config):
         build_script_args.append('--tools-dir={0}'.format(config.lldb_lit_tools_dir))
     if config.lldb_tools_dir:
         build_script_args.append('--tools-dir={0}'.format(config.lldb_tools_dir))
+    if config.llvm_libs_dir:
+        build_script_args.append('--libs-dir={0}'.format(config.llvm_libs_dir))
 
     primary_tools = [
         ToolSubst('%lldb',
@@ -99,6 +101,10 @@ def use_support_substitutions(config):
     elif platform.system() in ['NetBSD', 'OpenBSD', 'Linux']:
         flags = ['-pthread']
 
+    # needed e.g. to use freshly built libc++
+    flags.append('-L' + config.llvm_libs_dir)
+    if sys.platform.startswith('netbsd'):
+        flags.append('-Wl,-rpath,' + config.llvm_libs_dir)
 
     additional_tool_dirs=[]
     if config.lldb_lit_tools_dir:

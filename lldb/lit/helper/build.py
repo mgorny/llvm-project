@@ -35,6 +35,13 @@ parser.add_argument('--compiler',
                     required=True,
                     help='Path to a compiler executable, or one of the values [any, msvc, clang-cl, gcc, clang]')
 
+parser.add_argument('--libs-dir',
+                    metavar='directory',
+                    dest='libs_dir',
+                    required=False,
+                    action='append',
+                    help='If specified, a path to linked libraries to be passed via -L')
+
 parser.add_argument('--tools-dir',
                     metavar='directory',
                     dest='tools_dir',
@@ -225,6 +232,7 @@ class Builder(object):
         self.nodefaultlib = args.nodefaultlib
         self.verbose = args.verbose
         self.obj_ext = obj_ext
+        self.lib_paths = args.libs_dir
 
     def _exe_file_name(self):
         assert self.mode != 'compile'
@@ -648,6 +656,9 @@ class GccBuilder(Builder):
             if sys.platform == 'darwin':
                 main_symbol = '_main'
             args.append('-Wl,-e,' + main_symbol)
+        args.extend(['-L' + x for x in self.lib_paths])
+        if sys.platform.startswith('netbsd'):
+            args.extend(['-Wl,-rpath,' + x for x in self.lib_paths])
         args.extend(['-o', self._exe_file_name()])
         args.extend(self._obj_file_names())
 
