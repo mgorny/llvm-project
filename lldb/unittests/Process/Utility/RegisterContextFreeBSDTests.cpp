@@ -37,6 +37,8 @@ std::pair<size_t, size_t> GetRegParams(RegisterInfoInterface &ctx,
   EXPECT_THAT(                                                                 \
       GetRegParams(reg_ctx, lldb_##regname##_x86_64),                          \
       ::testing::Pair(offsetof(reg, r_##regname), sizeof(reg::r_##regname)))
+#define ASSERT_DBR_X86_64(num)                                                 \
+  ASSERT_OFF(dr##num##_x86_64, offsetof(dbreg, dr[num]), sizeof(dbreg::dr[num]))
 
 TEST(RegisterContextFreeBSDTest, x86_64) {
   ArchSpec arch{"x86_64-unknown-freebsd12.2"};
@@ -117,6 +119,16 @@ TEST(RegisterContextFreeBSDTest, x86_64) {
   ASSERT_OFF(xmm13_x86_64, 0x170, 16);
   ASSERT_OFF(xmm14_x86_64, 0x180, 16);
   ASSERT_OFF(xmm15_x86_64, 0x190, 16);
+
+  base_offset = reg_ctx.GetRegisterInfo()[lldb_dr0_x86_64].byte_offset;
+  ASSERT_DBR_X86_64(0);
+  ASSERT_DBR_X86_64(1);
+  ASSERT_DBR_X86_64(2);
+  ASSERT_DBR_X86_64(3);
+  ASSERT_DBR_X86_64(4);
+  ASSERT_DBR_X86_64(5);
+  ASSERT_DBR_X86_64(6);
+  ASSERT_DBR_X86_64(7);
 }
 #endif
 
@@ -126,6 +138,9 @@ TEST(RegisterContextFreeBSDTest, x86_64) {
   EXPECT_THAT(GetRegParams(reg_ctx, lldb_##regname##_i386),                    \
               ::testing::Pair(offsetof(native_i386_regs, r_##regname),         \
                               sizeof(native_i386_regs::r_##regname)))
+#define ASSERT_DBR_I386(num)                                                   \
+  ASSERT_OFF(dr##num##_i386, offsetof(dbreg32, dr[num]),                       \
+             sizeof(dbreg32::dr[num]))
 
 TEST(RegisterContextFreeBSDTest, i386) {
   ArchSpec arch{"i686-unknown-freebsd12.2"};
@@ -196,5 +211,15 @@ TEST(RegisterContextFreeBSDTest, i386) {
   ASSERT_OFF(xmm5_i386, 0xF0, 16);
   ASSERT_OFF(xmm6_i386, 0x100, 16);
   ASSERT_OFF(xmm7_i386, 0x110, 16);
+
+  base_offset = reg_ctx.GetRegisterInfo()[lldb_dr0_i386].byte_offset;
+  ASSERT_DBR_I386(0);
+  ASSERT_DBR_I386(1);
+  ASSERT_DBR_I386(2);
+  ASSERT_DBR_I386(3);
+  ASSERT_DBR_I386(4);
+  ASSERT_DBR_I386(5);
+  ASSERT_DBR_I386(6);
+  ASSERT_DBR_I386(7);
 }
 #endif
