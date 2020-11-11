@@ -58,14 +58,12 @@ public:
 private:
   // Private member types.
   enum RegSetKind {
+    YMMRegSet,
+    MaxXSaveSet = YMMRegSet,
+
     GPRegSet,
     FPRegSet,
-    XSaveRegSet,
     DBRegSet,
-  };
-  enum {
-    YMMXSaveSet,
-    MaxXSaveSet = YMMXSaveSet,
   };
 
   // Private member variables.
@@ -82,6 +80,7 @@ private:
 
   size_t GetFPROffset() const;
   size_t GetDBROffset() const;
+  bool GetYMMSplitReg(uint32_t reg, void *&xmm, void *&ymm_hi);
 };
 
 } // namespace process_freebsd
