@@ -512,6 +512,18 @@ remove_flags("/D_DEBUG" "/MTd" "/MDd" "/MT" "/Md")
 # so they don't get transformed into -Wno and -errors respectively.
 remove_flags(-Wno-pedantic -pedantic-errors -pedantic)
 
+# FIXME: this is cribbed from HandleLLVMOptions.cmake.
+if(LIBCXX_STANDALONE_BUILD)
+  # Pass -Wl,-z,defs. This makes sure all symbols are defined. Otherwise a DSO
+  # build might work on ELF but fail on MachO/COFF.
+  if(NOT (${CMAKE_SYSTEM_NAME} MATCHES "Darwin" OR WIN32 OR CYGWIN OR
+          ${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD" OR
+          ${CMAKE_SYSTEM_NAME} MATCHES "OpenBSD") AND
+     NOT LLVM_USE_SANITIZER)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,defs")
+  endif()
+endif()
+
 # Required flags ==============================================================
 function(cxx_add_basic_build_flags target)
 
