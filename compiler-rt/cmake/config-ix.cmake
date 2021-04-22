@@ -481,10 +481,7 @@ if(APPLE)
     ${DARWIN_COMMON_LINK_FLAGS}
     ${DARWIN_osx_MIN_VER_FLAG}=${SANITIZER_MIN_OSX_VERSION})
 
-  if(DARWIN_osx_SYSROOT)
-    list(APPEND DARWIN_osx_CFLAGS -isysroot ${DARWIN_osx_SYSROOT})
-    list(APPEND DARWIN_osx_LINK_FLAGS -isysroot ${DARWIN_osx_SYSROOT})
-  endif()
+  # Do not add -isysroot flag on Gentoo Prefix (search paths handled by cmake)
 
   # Figure out which arches to use for each OS
   darwin_get_toolchain_supported_archs(toolchain_arches)

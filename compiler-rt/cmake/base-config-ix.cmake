@@ -121,23 +121,8 @@ set(COMPILER_RT_INSTALL_DATA_DIR "${default_install_path}" CACHE PATH
   "Path where compiler-rt data files should be installed.")
 
 if(APPLE)
-  # On Darwin if /usr/include/c++ doesn't exist, the user probably has Xcode but
-  # not the command line tools (or is using macOS 10.14 or newer). If this is
-  # the case, we need to find the OS X sysroot to pass to clang.
-  if(NOT EXISTS /usr/include/c++)
-    execute_process(COMMAND xcrun -sdk macosx --show-sdk-path
-       OUTPUT_VARIABLE OSX_SYSROOT
-       ERROR_QUIET
-       OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if (NOT OSX_SYSROOT OR NOT EXISTS ${OSX_SYSROOT})
-      message(WARNING "Detected OSX_SYSROOT ${OSX_SYSROOT} does not exist")
-    else()
-      message(STATUS "Found OSX_SYSROOT: ${OSX_SYSROOT}")
-      set(OSX_SYSROOT_FLAG "-isysroot${OSX_SYSROOT}")
-    endif()
-  else()
-    set(OSX_SYSROOT_FLAG "")
-  endif()
+  # Do not add -isysroot flag on Gentoo Prefix (search paths handled by cmake)
+  set(OSX_SYSROOT_FLAG "")
 
   try_compile_only(COMPILER_RT_HAS_DARWIN_TARGET_VARIANT_FLAG
                    FLAGS
