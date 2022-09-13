@@ -460,6 +460,9 @@ void InitHeaderSearch::AddDefaultIncludePaths(const LangOptions &Lang,
   // All header search logic is handled in the Driver for Darwin.
   if (triple.isOSDarwin()) {
     if (HSOpts.UseStandardSystemIncludes) {
+      // Add Gentoo Prefix framework dirs first
+      AddPath("@GENTOO_PORTAGE_EPREFIX@/MacOSX.sdk/System/Library/Frameworks", System, true);
+      AddPath("@GENTOO_PORTAGE_EPREFIX@/MacOSX.sdk/Library/Frameworks", System, true);
       // Add the default framework include paths on Darwin.
       if (triple.isDriverKit()) {
         AddPath("/System/DriverKit/System/Library/Frameworks", System, true);

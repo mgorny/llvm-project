@@ -2057,9 +2057,11 @@ Optional<DarwinSDKInfo> parseSDKSettings(llvm::vfs::FileSystem &VFS,
                                          const ArgList &Args,
                                          const Driver &TheDriver) {
   const Arg *A = Args.getLastArg(options::OPT_isysroot);
+#if 0
   if (!A)
     return None;
-  StringRef isysroot = A->getValue();
+#endif
+  StringRef isysroot = A ? A->getValue() : "@GENTOO_PORTAGE_EPREFIX@/MacOSX.sdk";
   auto SDKInfoOrErr = parseDarwinSDKInfo(VFS, isysroot);
   if (!SDKInfoOrErr) {
     llvm::consumeError(SDKInfoOrErr.takeError());
@@ -2290,7 +2292,7 @@ static void AppendPlatformPrefix(SmallString<128> &Path,
 // platform prefix (if any).
 llvm::SmallString<128>
 DarwinClang::GetEffectiveSysroot(const llvm::opt::ArgList &DriverArgs) const {
-  llvm::SmallString<128> Path("/");
+  llvm::SmallString<128> Path("@GENTOO_PORTAGE_EPREFIX@/");
   if (DriverArgs.hasArg(options::OPT_isysroot))
     Path = DriverArgs.getLastArgValue(options::OPT_isysroot);
   else if (!getDriver().SysRoot.empty())
@@ -2306,6 +2308,7 @@ void DarwinClang::AddClangSystemIncludeArgs(const llvm::opt::ArgList &DriverArgs
                                             llvm::opt::ArgStringList &CC1Args) const {
   const Driver &D = getDriver();
 
+  // Sysroot is effectively Gentoo EPREFIX when -isysroot/-sysroot is not defined
   llvm::SmallString<128> Sysroot = GetEffectiveSysroot(DriverArgs);
 
   bool NoStdInc = DriverArgs.hasArg(options::OPT_nostdinc);
@@ -2347,6 +2350,10 @@ void DarwinClang::AddClangSystemIncludeArgs(const llvm::opt::ArgList &DriverArgs
     SmallString<128> P(Sysroot);
     llvm::sys::path::append(P, "usr", "include");
     addExternCSystemInclude(DriverArgs, CC1Args, P.str());
+    // And add <sysroot>/MacOSX.sdk/usr/include.
+    SmallString<128> Psdk(Sysroot);
+    llvm::sys::path::append(Psdk, "MacOSX.sdk", "usr", "include");
+    addExternCSystemInclude(DriverArgs, CC1Args, Psdk.str());
   }
 }
 
@@ -2395,6 +2402,7 @@ void DarwinClang::AddClangCXXStdlibIncludeArgs(
       DriverArgs.hasArg(options::OPT_nostdincxx))
     return;
 
+  // Sysroot is effectively Gentoo EPREFIX when -isysroot/-sysroot is not defined
   llvm::SmallString<128> Sysroot = GetEffectiveSysroot(DriverArgs);
 
   switch (GetCXXStdlibType(DriverArgs)) {
